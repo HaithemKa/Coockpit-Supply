@@ -1,0 +1,170 @@
+drop table if exists dev_bibyviz.shortage_rate_histo ;
+--------------------------------------------------------------------------------
+create table dev_bibyviz.shortage_rate_histo
+partitioned by (year,month) 
+as
+(select 
+    dd.day_id_day,
+    but.but_idr_business_unit ,
+   	but.but_num_business_unit,
+   	but.but_name_business_unit,
+    sku.sku_idr_sku,
+    sku.sku_num_sku_r3,
+    far.lifestage,
+    far.type_dispo,
+    far.qty_available_stock_with_transit,
+    far.top_available_stock_without_transit,
+    far.abc_code,
+    far.selling_class,
+    far.year,
+    far.month 
+FROM dev_bibyviz.f_availability_rate far
+inner join datalake_cds_parquet.d_sku sku 
+on far.item_code_r3 = sku.sku_num_sku_r3
+inner join datalake_cds_parquet.d_day dd 
+on cast(far.snapshot_date as date) = dd.day_id_day 
+      and dd.day_num_weekday = 7
+INNER JOIN datalake_cds_parquet.d_business_unit but
+ ON but.but_num_typ_but=far.third_type
+    AND but.but_num_business_unit=far.third_number
+    AND but.but_sub_num_but=far.third_sub_number
+
+ where 1=1 
+
+    and far.lifestage in (1,3,7,8)   
+    and far.blocked_item = 0 
+    and far.top_suivi = 1 
+    and cast(sku.sku_date_end as date) >= cast(current_date()as date)
+    and  far.abc_code is not null 
+    and year = 2022
+    and month= 10
+
+order by 
+ dd.day_id_day asc)
+ 
+ union all
+ 
+ (select 
+    dd.day_id_day,
+    but.but_idr_business_unit ,
+    but.but_num_business_unit,
+   	but.but_name_business_unit,
+    sku.sku_idr_sku,
+    sku.sku_num_sku_r3,
+    far.lifestage,
+    far.type_dispo,
+    far.qty_available_stock_with_transit,
+    far.top_available_stock_without_transit,
+    far.abc_code,
+    far.selling_class,
+    far.year,
+    far.month 
+FROM dev_bibyviz.f_availability_rate far
+inner join datalake_cds_parquet.d_sku sku 
+on far.item_code_r3 = sku.sku_num_sku_r3
+inner join datalake_cds_parquet.d_day dd 
+on cast(far.snapshot_date as date) = dd.day_id_day 
+      and dd.day_num_weekday = 7
+INNER JOIN datalake_cds_parquet.d_business_unit but
+ ON but.but_num_typ_but=far.third_type
+    AND but.but_num_business_unit=far.third_number
+    AND but.but_sub_num_but=far.third_sub_number
+
+ where 1=1 
+
+    and far.lifestage in (1,3,7,8)   
+    and far.blocked_item = 0 
+    and far.top_suivi = 1 
+    and cast(sku.sku_date_end as date) >= cast(current_date()as date)
+    and  far.abc_code is not null
+    and year = 2022
+    and month= 09
+
+order by 
+ dd.day_id_day asc
+ )
+ 
+  union all
+ 
+ (select 
+    dd.day_id_day,
+    but.but_idr_business_unit ,
+    but.but_num_business_unit,
+   	but.but_name_business_unit,
+    sku.sku_idr_sku,
+    sku.sku_num_sku_r3,
+    far.lifestage,
+    far.type_dispo,
+    far.qty_available_stock_with_transit,
+    far.top_available_stock_without_transit,
+    far.abc_code,
+    far.selling_class,
+    far.year,
+    far.month 
+FROM dev_bibyviz.f_availability_rate far
+inner join datalake_cds_parquet.d_sku sku 
+on far.item_code_r3 = sku.sku_num_sku_r3
+inner join datalake_cds_parquet.d_day dd 
+on cast(far.snapshot_date as date) = dd.day_id_day 
+      and dd.day_num_weekday = 7
+INNER JOIN datalake_cds_parquet.d_business_unit but
+ ON but.but_num_typ_but=far.third_type
+    AND but.but_num_business_unit=far.third_number
+    AND but.but_sub_num_but=far.third_sub_number
+
+ where 1=1 
+
+    and far.lifestage in (1,3,7,8)   
+    and far.blocked_item = 0 
+    and far.top_suivi = 1 
+    and cast(sku.sku_date_end as date) >= cast(current_date()as date)
+    and  far.abc_code is not null
+    and year = 2022
+    and month= 08
+
+order by 
+ dd.day_id_day asc
+ )
+ 
+  union all
+ 
+ (select 
+    dd.day_id_day,
+    but.but_idr_business_unit,
+    but.but_num_business_unit,
+   	but.but_name_business_unit,
+    sku.sku_idr_sku,
+    sku.sku_num_sku_r3,
+    far.lifestage,
+    far.type_dispo,
+    far.qty_available_stock_with_transit,
+    far.top_available_stock_without_transit,
+    far.abc_code,
+    far.selling_class,
+    far.year,
+    far.month 
+FROM dev_bibyviz.f_availability_rate far
+inner join datalake_cds_parquet.d_sku sku 
+on far.item_code_r3 = sku.sku_num_sku_r3
+inner join datalake_cds_parquet.d_day dd 
+on cast(far.snapshot_date as date) = dd.day_id_day 
+      and dd.day_num_weekday = 7
+INNER JOIN datalake_cds_parquet.d_business_unit but
+ ON but.but_num_typ_but=far.third_type
+    AND but.but_num_business_unit=far.third_number
+    AND but.but_sub_num_but=far.third_sub_number
+
+ where 1=1 
+
+    and far.lifestage in (1,3,7,8)   
+    and far.blocked_item = 0 
+    and far.top_suivi = 1 
+    and cast(sku.sku_date_end as date) >= cast(current_date()as date)
+    and  far.abc_code is not null
+    and year = 2022
+    and month= 07
+
+order by 
+ dd.day_id_day asc
+ )
+ ;
