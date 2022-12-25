@@ -1,0 +1,41 @@
+create or replace view cockpit_supply_dvs
+as
+select 
+extract (year from pic.picture_date) as pic_year,
+extract (month from pic.picture_date) as pic_month,
+extract (week from pic.picture_date) as pic_week,
+pic.third_number_storage,
+pic.third_type_storage,
+pic.third_sub_number_storage,
+pic.item_code_r3,
+pic.stock_type,
+pic.valo_type,
+dbu.but_idr_business_unit,
+far.abc_code,											-- f_availability
+far.lifestage,										--- - f_availability
+right(lss.material_id,7),				-- id pour la table logical snapshot car (entrepot regional) et cac(continental)
+avg(pic.picture_quantity) as average_stock,
+sum(pic.picture_quantity * pic.price) as total_stock_value
+from datalake_cds_parquet.d_business_unit dbu 
+inner join datalake_cds_parquet.f_stock_inventory pic 
+       on pic.third_type_storage = dbu.but_num_typ_but
+       and pic.third_number_storage = dbu.but_num_business_unit
+       and pic.third_sub_number_storage=dbu.but_sub_num_but
+inner join  datalake_cds_parquet.d_day dd
+       on pic.picture_date  = dd.day_id_day 
+        and dd.day_num_weekday = 7
+inner join dev_bibyviz.f_availability_rate far
+				on dbu.but_num_typ_but = far.third_type
+        and dbu.but_num_business_unit = far.third_number
+        and dbu.but_sub_num_but =far.third_sub_number
+           --and pic.item_code_r3 = far.item_code_R3
+inner join datalake_cds_parquet.logical_stock_snapshot lss
+          on pic.item_code_r3 = right(lss.warehouse_id,7) 
+where 1=1
+and dbu.but_num_typ_but=7
+and extract (year from pic.picture_date) = 2022
+and extract (month from pic.picture_date)  = 10
+
+group by 
+1,2,3,4,5,6,7,8,9,10,11,12,13
+;
