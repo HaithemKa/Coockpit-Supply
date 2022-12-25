@@ -28,21 +28,21 @@ create table dataset_insight_bi.shortage_rate_histo
 -- month 7
 copy dataset_insight_bi.shortage_rate_histo 
 from 's3://dev-dct-wksp-bibyviz-cockpitsupply/shortage_rate_histo/year=2022/month=7'
-credentials 'aws_access_key_id=AKIAY6B2V7VEYFSMZWMC;aws_secret_access_key=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'  
+credentials ';aws_secret_access_key='  
 format parquet;
 
 
 copy dataset_insight_bi.shortage_rate_histo 
 from 's3://dev-dct-wksp-bibyviz-cockpitsupply/shortage_rate_histo/year=2022/month=8'
-credentials 'aws_access_key_id=AKIAY6B2V7VEYFSMZWMC;aws_secret_access_key=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'  
+credentials ';aws_secret_access_key='  
 format parquet;
 
 copy dataset_insight_bi.shortage_rate_histo 
 from 's3://dev-dct-wksp-bibyviz-cockpitsupply/shortage_rate_histo/year=2022/month=9'
-credentials 'aws_access_key_id=AKIAY6B2V7VEYFSMZWMC;aws_secret_access_key=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'  
+credentials 'aws_access_key_id=;aws_secret_access_key='  
 format parquet;
 
 copy dataset_insight_bi.shortage_rate_histo 
 from 's3://dev-dct-wksp-bibyviz-cockpitsupply/shortage_rate_histo/year=2022/month=10'
-credentials 'aws_access_key_id=AKIAY6B2V7VEYFSMZWMC;aws_secret_access_key=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'  
+credentials 'aws_access_key_id=;aws_secret_access_key='  
 format parquet;
