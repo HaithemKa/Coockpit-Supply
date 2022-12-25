@@ -1,0 +1,140 @@
+DROP TABLE IF EXISTS NUM_test_magasin ; 
+-----------------------------------------------
+CREATE TEMP TABLE NUM_test_magasin AS (
+SELECT 
+	EXTRACT (YEAR FROM cssrh.day_id_day) as year,
+	DATE_PART (month, cssrh.day_id_day) AS month,
+	--DATE_PART (W, cssrh.day_id_day) AS week,
+    m.cnt_country_code as country,
+    cssrh.sku_num_sku_r3 as items,
+    cssrh.sku_idr_sku as idr_items, 
+    cssrh.but_idr_business_unit,
+    CASE
+			WHEN cssrh.lifestage=1 AND cssrh.abc_code='A' THEN 1 ----pour les codes A
+			ELSE 0
+	END AS product_type,
+    cssrh.lifestage,
+    cssrh.abc_code,
+    cssrh.selling_class,								-- to add on the table source
+	count(*) as num
+    FROM dataset_insight_bi.shortage_rate_histo cssrh
+    left join cds.d_business_unit m 
+	   on m.but_idr_business_unit = cssrh.but_idr_business_unit 
+    WHERE 1=1
+    AND top_available_stock_without_transit =1 
+    AND type_dispo= 'Dispo_MAG'
+    group by 1,2,3,4,5,6,7,8,9,10
+) 
+;
+-------------------------------------------------
+SELECT TOP 100* FROM NUM_test_magasin;
+-------------------------------------------------
+DROP TABLE IF EXISTS DENOM_test_magasin ;
+-------------------------------------------------
+CREATE TEMP TABLE DENOM_test_magasin AS (
+SELECT 
+	EXTRACT (YEAR FROM cssrh.day_id_day) as year,
+	DATE_PART (month, cssrh.day_id_day) AS month,
+	--DATE_PART (W, cssrh.day_id_day) AS week, 
+    m.cnt_country_code as country,
+    cssrh.sku_num_sku_r3 as items, 
+    cssrh.sku_idr_sku as idr_items, 
+    cssrh.but_idr_business_unit,
+    CASE
+			WHEN cssrh.lifestage=1 AND cssrh.abc_code='A' THEN 'code a' ----pour les codes A
+			ELSE 'others'
+	END AS product_type,
+    cssrh.lifestage,
+    cssrh.abc_code,
+    cssrh.selling_class,								-- to add on the table source
+	count(*) as denum
+    FROM dataset_insight_bi.shortage_rate_histo cssrh
+    left join cds.d_business_unit m 
+	on m.but_idr_business_unit = cssrh.but_idr_business_unit 
+    WHERE 1=1
+    AND type_dispo= 'Dispo_MAG'
+    group by 1,2,3,4,5,6,7,8,9,10
+)
+;
+------------------------------------------------
+SELECT TOP 100* FROM DENOM_test_magasin ; 
+------------------------------------------------
+DROP TABLE if exists tmp_shortage_rate_test_magasin ; 
+------------------------------------------------
+CREATE TEMP TABLE tmp_shortage_rate_test_magasin AS (
+select 
+	B.year,
+	B.month,
+	--B.week,
+    B.country,
+    B.items,
+    B.idr_items,
+    B.but_idr_business_unit,
+    B.lifestage,
+    B.product_type,
+    B.abc_code,
+    B.selling_class,								
+    1-round(((A.num)/(B.denum)::float)::float, 2) as shortage_rate
+from NUM_test_magasin A
+inner join DENOM_test_magasin B
+on A.year = B.year
+and A.month = B.month
+--and A.week = B.week
+and A.idr_items = B.idr_items
+and A.items = B.items
+and A.but_idr_business_unit = B.but_idr_business_unit
+and A.country = B.country
+and A.lifestage = B.lifestage
+and A.abc_code = B.abc_code
+and A.selling_class = B.selling_class
+and A.product_type = B.product_type 
+    
+)
+;
+---------------------------------------------------------------
+SELECT TOP 100* FROM tmp_shortage_rate_test_magasin 
+WHERE shortage_rate <> 0 ;
+---------------------------------------------------------------
+DROP TABLE IF EXISTS shortage_rate_final_test_magasin ;
+---------------------------------------------------------------
+CREATE TEMP TABLE shortage_rate_final_test_magasin AS (
+SELECT
+    stg.year,
+    stg.month,
+    --stg.week,
+    stg.country,
+    stg.items,
+    stg.idr_items,
+    stg.but_idr_business_unit,
+    stg.lifestage,
+    stg.product_type,
+    stg.abc_code,
+    stg.selling_class,
+    COALESCE(dmi.niv_fa || ' ' || dmi.fa_label, dmi.niv_fa::varchar, 'Unassigned') AS dmi_fa,
+	COALESCE(dmi.niv_sr || ' ' || dmi.sr_label, dmi.niv_sr::varchar, 'Unassigned') AS dmi_sr,
+	COALESCE(dmi.niv_ray || ' ' || dmi.ray_label, dmi.niv_ray::varchar, 'Unassigned') AS dmi_ray,
+	COALESCE(dmi.niv_unv || ' ' || dmi.unv_label, dmi.niv_unv::varchar, 'Unassigned') AS dmi_unv,
+    --ds.fam_num_family,
+	--ds.family_label,
+	--ds.dpt_num_department,
+	--ds.dpt_label,
+	stg.shortage_rate
+FROM tmp_shortage_rate_test_magasin stg
+---- sku for the link between tables
+LEFT JOIN cds.d_sku ds
+	ON stg.idr_items=ds.sku_idr_sku
+
+-- hierarche dmi 
+LEFT JOIN cds_supply.d_hierarchy_supply dmi -- DMI hierarchy
+    ON dmi.mdl_num_model_r3 = ds.mdl_num_model_r3			---  join based on the sku_num_sku_r3
+  AND dmi.org_fa = 1
+GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+
+)
+; 
+-----------------------------------------------------
+SELECT TOP 100* FROM shortage_rate_final_test_magasin ;
+-----------------------------------------------------
+CREATE TABLE dataset_insight_bi.new_shortage_rate_test_magasin AS SELECT * FROM shortage_rate_final_test_magasin ;
+-------------
+select top 100 * from shortage_rate_final_test_magasin ;
