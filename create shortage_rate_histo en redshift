@@ -1,0 +1,48 @@
+drop table if exists dataset_insight_bi.shortage_rate_histo ;
+
+create table dataset_insight_bi.shortage_rate_histo 
+
+(
+              	
+              
+			  
+ 		 day_id_day   												date  
+  		,but_idr_business_unit      								bigint
+  		,but_num_business_unit										float
+  		,but_name_business_unit										varchar(100)
+  		,sku_idr_sku												bigint
+  		,sku_num_sku_r3												bigint
+		,lifestage 													varchar(50)     
+        ,type_dispo													varchar(50)  
+        ,qty_available_stock_with_transit							bigint
+        ,top_available_stock_without_transit						bigint
+        ,abc_code													varchar(50)
+        ,selling_class												varchar(50)
+          
+
+
+)
+;
+
+
+-- month 7
+copy dataset_insight_bi.shortage_rate_histo 
+from 's3://dev-dct-wksp-bibyviz-cockpitsupply/shortage_rate_histo/year=2022/month=7'
+credentials 'aws_access_key_id=AKIAY6B2V7VEYFSMZWMC;aws_secret_access_key=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'  
+format parquet;
+
+
+copy dataset_insight_bi.shortage_rate_histo 
+from 's3://dev-dct-wksp-bibyviz-cockpitsupply/shortage_rate_histo/year=2022/month=8'
+credentials 'aws_access_key_id=AKIAY6B2V7VEYFSMZWMC;aws_secret_access_key=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'  
+format parquet;
+
+copy dataset_insight_bi.shortage_rate_histo 
+from 's3://dev-dct-wksp-bibyviz-cockpitsupply/shortage_rate_histo/year=2022/month=9'
+credentials 'aws_access_key_id=AKIAY6B2V7VEYFSMZWMC;aws_secret_access_key=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'  
+format parquet;
+
+copy dataset_insight_bi.shortage_rate_histo 
+from 's3://dev-dct-wksp-bibyviz-cockpitsupply/shortage_rate_histo/year=2022/month=10'
+credentials 'aws_access_key_id=AKIAY6B2V7VEYFSMZWMC;aws_secret_access_key=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'  
+format parquet;
